@@ -1,0 +1,445 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Kala Mel - Firebase Test</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 25px;
+            background: #F2ECDF;
+            color: #14221D;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 30px auto;
+            background: #0E2A1F;
+            color: #F2ECDF;
+            border-radius: 18px;
+            padding: 30px;
+        }
+
+        .logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .logos img {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+        }
+
+        h1 {
+            color: #F4C430;
+            text-align: center;
+            font-size: 26px;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 18px;
+            font-weight: normal;
+        }
+
+        input, button {
+            display: block;
+            width: 100%;
+            padding: 13px;
+            margin: 12px 0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        input {
+            border: 1px solid #64786D;
+            background: #F2ECDF;
+            color: #14221D;
+        }
+
+        button {
+            border: none;
+            background: #F4C430;
+            color: #14221D;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .logout {
+            background: #BC4C28;
+            color: white;
+        }
+
+        .status {
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            background: #294438;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .success {
+            color: #B8F0C3;
+        }
+
+        .error {
+            color: #FFB8A7;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 12px;
+            margin-top: 25px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="logos">
+        <img src="assets/antruz-ghudyo.png"
+             alt="Antruz Ghudyo">
+
+        <img src="assets/bkm-logo.png"
+             alt="Bhurgyancho Kala Mel">
+    </div>
+
+    <h1>11th Bhurgyancho Kala Mel</h1>
+
+    <h2>Firebase Configuration Test</h2>
+
+    <div id="sdkStatus" class="status">
+        Initializing Firebase...
+    </div>
+
+    <div id="databaseStatus" class="status">
+        Checking Firestore...
+    </div>
+
+    <div id="authStatus" class="status">
+        Administrator not signed in.
+    </div>
+
+    <div id="adminStatus" class="status">
+        Administrator permissions not verified.
+    </div>
+
+    <div id="securityStatus" class="status">
+        Security check pending.
+    </div>
+
+    <form id="loginForm">
+
+        <input
+            id="email"
+            type="email"
+            placeholder="Administrator email"
+            autocomplete="username"
+            required
+        >
+
+        <input
+            id="password"
+            type="password"
+            placeholder="Administrator password"
+            autocomplete="current-password"
+            required
+        >
+
+        <button id="loginBtn" type="submit" disabled>
+            Test Administrator Login
+        </button>
+
+    </form>
+
+    <button id="logoutBtn"
+            class="logout"
+            disabled>
+        Sign Out
+    </button>
+
+    <footer>
+        Antruz Ghudyo | Firebase Diagnostic Page
+    </footer>
+
+</div>
+
+<script type="module">
+
+    const showStatus = (id, message, type = "") => {
+        const element = document.getElementById(id);
+        element.textContent = message;
+        element.className = "status " + type;
+    };
+
+    try {
+
+        const {
+            auth,
+            db,
+            EVENT_ID
+        } = await import("./js/firebase-config.js");
+
+        const {
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged
+        } = await import(
+            "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js"
+        );
+
+        const {
+            doc,
+            getDocFromServer
+        } = await import(
+            "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js"
+        );
+
+        showStatus(
+            "sdkStatus",
+            "✓ Firebase SDK initialized successfully",
+            "success"
+        );
+
+        document.getElementById("loginBtn").disabled = false;
+
+        // Check Firestore connectivity using
+        // a publicly readable document path.
+
+        try {
+
+            const eventRef = doc(
+                db,
+                "publicEvents",
+                EVENT_ID
+            );
+
+            const snapshot = await getDocFromServer(eventRef);
+
+            showStatus(
+                "databaseStatus",
+                snapshot.exists()
+                    ? "✓ Firestore connected. Event found."
+                    : "✓ Firestore connected. Event not initialized yet.",
+                "success"
+            );
+
+        } catch (error) {
+
+            showStatus(
+                "databaseStatus",
+                "✗ Firestore error: " + error.message,
+                "error"
+            );
+        }
+
+
+        // Administrator authentication state
+
+        onAuthStateChanged(auth, async (user) => {
+
+            document.getElementById("logoutBtn").disabled = !user;
+
+            if (!user) {
+
+                showStatus(
+                    "authStatus",
+                    "Administrator not signed in."
+                );
+
+                showStatus(
+                    "adminStatus",
+                    "Administrator permissions not verified."
+                );
+
+                // Confirm private data cannot be
+                // accessed by an unauthenticated user.
+
+                try {
+
+                    await getDocFromServer(
+                        doc(db, "events", EVENT_ID)
+                    );
+
+                    showStatus(
+                        "securityStatus",
+                        "✗ Warning: Private event access was allowed.",
+                        "error"
+                    );
+
+                } catch (error) {
+
+                    if (error.code === "permission-denied") {
+
+                        showStatus(
+                            "securityStatus",
+                            "✓ Unauthorized private data access blocked.",
+                            "success"
+                        );
+
+                    } else {
+
+                        showStatus(
+                            "securityStatus",
+                            "Security check incomplete: " + error.message,
+                            "error"
+                        );
+                    }
+                }
+
+                return;
+            }
+
+            showStatus(
+                "authStatus",
+                "✓ Signed in: " + user.email,
+                "success"
+            );
+
+            showStatus(
+                "securityStatus",
+                "Sign out to test unauthenticated access."
+            );
+
+            try {
+
+                const adminRef = doc(
+                    db,
+                    "admins",
+                    user.uid
+                );
+
+                const adminDoc =
+                    await getDocFromServer(adminRef);
+
+                if (
+                    adminDoc.exists()
+                    && adminDoc.data().active === true
+                    && adminDoc.data().role === "admin"
+                ) {
+
+                    showStatus(
+                        "adminStatus",
+                        "✓ Administrator permissions verified. UID: "
+                        + user.uid,
+                        "success"
+                    );
+
+                } else {
+
+                    showStatus(
+                        "adminStatus",
+                        "✗ Account is not an authorized administrator.",
+                        "error"
+                    );
+                }
+
+            } catch (error) {
+
+                showStatus(
+                    "adminStatus",
+                    "✗ Administrator verification failed: "
+                    + error.message,
+                    "error"
+                );
+            }
+        });
+
+
+        // Administrator login
+
+        document.getElementById("loginForm")
+            .addEventListener("submit", async (event) => {
+
+                event.preventDefault();
+
+                const email =
+                    document.getElementById("email").value.trim();
+
+                const password =
+                    document.getElementById("password").value;
+
+                const loginBtn =
+                    document.getElementById("loginBtn");
+
+                loginBtn.disabled = true;
+
+                try {
+
+                    await signInWithEmailAndPassword(
+                        auth,
+                        email,
+                        password
+                    );
+
+                } catch (error) {
+
+                    showStatus(
+                        "authStatus",
+                        "✗ Login failed: " + error.message,
+                        "error"
+                    );
+
+                } finally {
+
+                    document.getElementById("password").value = "";
+
+                    loginBtn.disabled = false;
+                }
+            });
+
+
+        // Sign out
+
+        document.getElementById("logoutBtn")
+            .addEventListener("click", async () => {
+
+                try {
+                    await signOut(auth);
+                } catch (error) {
+                    showStatus(
+                        "authStatus",
+                        "Sign out failed: " + error.message,
+                        "error"
+                    );
+                }
+            });
+
+    } catch (error) {
+
+        showStatus(
+            "sdkStatus",
+            "✗ Firebase initialization failed: " + error.message,
+            "error"
+        );
+    }
+
+</script>
+
+</body>
+</html>
