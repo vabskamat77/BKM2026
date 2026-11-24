@@ -10,3 +10,11 @@ export function calculate(master, results, view) {
  rows.forEach((s,i)=>s.rank=!s.active?null:i&&rows[i-1].active&&cmp(s,rows[i-1])===0?rows[i-1].rank:i+1);
  return {rows,count:selected.length,top:selected.length?rows.filter(s=>s.active&&s.rank<=3&&(s.points>0||s.first+s.second+s.third>0)):[]};
 }
+
+// The public master includes only approved adjustments. Derive the difference
+// from the synchronized published placement awards, without reading private Jokers.
+export function jokerAdjustments(master,results){
+ const regular=new Map(master.schools.map(s=>[s.schoolId,0]));
+ for(const r of results){if(r.status!=='published')continue;for(const a of r.awards){if(!regular.has(a.schoolId)||!Number.isSafeInteger(a.points))throw Error('Invalid published award');regular.set(a.schoolId,regular.get(a.schoolId)+a.points);}}
+ return new Map(master.schools.map(s=>[s.schoolId,s.points-regular.get(s.schoolId)]));
+}

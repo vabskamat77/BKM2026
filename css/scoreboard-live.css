@@ -29,3 +29,5 @@
 :is(.score-main:fullscreen:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]),.projector-screen:fullscreen) .podium-points{font-size:clamp(24px,4.5vh,54px)}
 :is(.score-main:fullscreen:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]),.projector-screen:fullscreen) .place-1 .podium-points{font-size:clamp(32px,6vh,72px)}
 :is(.score-main:fullscreen:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]),.projector-screen:fullscreen) .place-3 .podium-points{font-size:clamp(20px,3.5vh,44px)}
+
+.score-table .joker-heading[hidden]{display:none!important}.score-table .joker-value{font-weight:800;white-space:nowrap}.score-table .joker-positive{color:#86e5a1}.score-table .joker-negative{color:#ff9a85}
