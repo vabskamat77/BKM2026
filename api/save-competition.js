@@ -7,12 +7,14 @@ function validate(b){
  if(!b||typeof b!=='object'||Array.isArray(b))throw denied(400,'Invalid request');
  const text=(k,required=false)=>{if(typeof b[k]!=='string'||b[k].trim().length>120||(required&&!b[k].trim()))throw denied(400,'Invalid '+k);return b[k].trim()};
  const name=text('name',true),nameKonkani=text('nameKonkani'),category=text('category',true);
+ if(!['Gold','Silver'].includes(b.competitionCategory))throw denied(400,'Select Gold or Silver competition category');
+ if(!['Onstage','Offstage'].includes(b.stageType))throw denied(400,'Select Onstage or Offstage');
  if(!['individual','team'].includes(b.type)||!statuses.includes(b.status))throw denied(400,'Invalid type or status');
  if(!Array.isArray(b.schoolIds)||b.schoolIds.length>20||new Set(b.schoolIds).size!==b.schoolIds.length||b.schoolIds.some(x=>typeof x!=='string'||!/^school-(0[1-9]|1[0-9]|20)$/.test(x)))throw denied(400,'Invalid participating schools');
  if(b.status!=='draft'&&!b.schoolIds.length)throw denied(400,'Select at least one school');
  const s=b.scoring;if(!s||typeof s.participationEnabled!=='boolean'||['first','second','third','participation'].some(k=>!Number.isInteger(s[k])||s[k]<0||s[k]>10000))throw denied(400,'Points must be whole numbers from 0 to 10000');
  if(s.first<s.second||s.second<s.third)throw denied(400,'Place points must be in descending order');
- return {name,nameKonkani,category,type:b.type,status:b.status,schoolIds:[...b.schoolIds].sort(),scoring:{first:s.first,second:s.second,third:s.third,participationEnabled:s.participationEnabled,participation:s.participationEnabled?s.participation:0}};
+ return {name,nameKonkani,category,competitionCategory:b.competitionCategory,stageType:b.stageType,type:b.type,status:b.status,schoolIds:[...b.schoolIds].sort(),scoring:{first:s.first,second:s.second,third:s.third,participationEnabled:s.participationEnabled,participation:s.participationEnabled?s.participation:0}};
 }
 module.exports=async(req,res)=>{
  if(!prepare(req,res,'POST'))return;
