@@ -31,7 +31,7 @@ module.exports=async(req,res)=>{
  const published=publicResult.exists||old.data()?.published===true||old.data()?.status==='published';
  if(published&&!publicResult.exists)throw denied(409,'Published result missing; repair before editing');
  if(published)patch.status='published';else if(old.exists&&!statuses.includes(old.data().status))patch.status=old.data().status;
- if(privateResult.exists&&!published&&patch.status!=='completed')throw denied(409,'Keep competition completed while a result draft exists');
+ 
  const stamp=FieldValue.serverTimestamp();
  function reviseResult(r){const scoring={...patch.scoring,participationEnabled:r.scoring?.participationEnabled===true,participation:r.scoring?.participation||0};return {...r,name:patch.name,nameKonkani:patch.nameKonkani,competitionCategory:patch.competitionCategory,stageType:patch.stageType,scoring,awards:awards({scoring,schoolIds:r.participants},r),revision:r.revision+1,updatedAt:stamp};}
 
