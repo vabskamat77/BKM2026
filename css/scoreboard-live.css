@@ -1,1 +1,31 @@
 .view-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}.view-tabs button{font:inherit;font-weight:700;padding:10px 18px;border:1px solid #294438;border-radius:9px;background:#f2ecdf;color:#0e2a1f;cursor:pointer}.view-tabs button[aria-pressed=true]{background:#0e2a1f;color:#f4c430}.view-tabs button:focus-visible{outline:3px solid #bc4c28;outline-offset:2px}.demo-tag.connected{background:#294438;color:#fff}.podium-empty{grid-column:1/-1;text-align:center}.score-table .school-name{overflow-wrap:anywhere}.score-main:fullscreen .view-tabs{margin:6px 0}.score-main:fullscreen .view-tabs button{padding:5px 12px}
+
+/* Overall championship podium: visual hierarchy only. */
+.score-main:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .podium-grid{grid-template-columns:minmax(0,1fr) minmax(0,1.24fr) minmax(0,1fr);align-items:end;gap:clamp(5px,1.5vw,18px)}
+.score-main:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .podium-card{min-width:0;gap:6px;padding:clamp(8px,2vw,22px) 5px;align-content:center}
+.score-main:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .place-1{min-height:clamp(185px,24vw,290px);background:linear-gradient(155deg,#655321,#303b24);border:3px solid #f4c430;box-shadow:0 0 22px #f4c43038}
+.score-main:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .place-2{min-height:clamp(145px,19vw,235px);background:linear-gradient(155deg,#465953,#294438);border:2px solid #c8d0d3}
+.score-main:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .place-3{min-height:clamp(125px,16vw,200px);background:linear-gradient(155deg,#604333,#293b30);border:2px solid #cd9565}
+.score-main:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .place-1 .podium-medal{font-size:clamp(28px,4vw,54px)}
+.score-main:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .place-1 .podium-medal::before{content:'👑';display:block;font-size:.8em}
+.score-main:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .podium-medal::after{display:block;font-size:clamp(9px,1.2vw,15px);font-weight:800;letter-spacing:.05em}
+.score-main:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .place-1 .podium-medal::after{content:'1ST PLACE';color:#f4c430}
+.score-main:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .place-2 .podium-medal::after{content:'2ND PLACE';color:#d9e0e3}
+.score-main:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .place-3 .podium-medal::after{content:'3RD PLACE';color:#e6b38c}
+.score-main:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .place-1 .podium-name{font-size:clamp(14px,2.6vw,34px);font-weight:900}
+.score-main:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .place-2 .podium-name{font-size:clamp(12px,2vw,26px);font-weight:800}
+.score-main:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .place-3 .podium-name{font-size:clamp(11px,1.7vw,22px);font-weight:800}
+.score-main:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .place-1 .podium-points{font-size:clamp(30px,5.5vw,72px);font-weight:900;line-height:1.1}
+.score-main:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .place-2 .podium-points{font-size:clamp(25px,4.2vw,54px);color:#d9e0e3;line-height:1.1}
+.score-main:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .place-3 .podium-points{font-size:clamp(22px,3.5vw,44px);color:#e6b38c;line-height:1.1}
+.score-main:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) tr:has(.rank.r1){background:#f4c43020;font-weight:900}
+.score-main:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) tr:has(.rank.r2){background:#d9e0e312;font-weight:800}
+.score-main:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) tr:has(.rank.r3){background:#cd956515;font-weight:800}
+.score-main:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) tr:has(.rank.r2) td:last-child{color:#d9e0e3}
+.score-main:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) tr:has(.rank.r3) td:last-child{color:#e6b38c}
+.score-main:fullscreen:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .podium-card{min-height:0;padding:8px 5px;gap:3px}
+.score-main:fullscreen:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .place-1{padding-block:16px}
+.score-main:fullscreen:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .place-2{padding-block:11px}
+.score-main:fullscreen:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .podium-points{font-size:clamp(24px,4.5vh,54px)}
+.score-main:fullscreen:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .place-1 .podium-points{font-size:clamp(32px,6vh,72px)}
+.score-main:fullscreen:has(.view-tabs:not([hidden]) button[data-view="overall"][aria-pressed="true"]) .place-3 .podium-points{font-size:clamp(20px,3.5vh,44px)}
