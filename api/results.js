@@ -1,0 +1,2 @@
+const {server}=require('../lib/server');const {prepare,fail}=require('../lib/cors');const {verifyAdmin}=require('../lib/verify-admin');
+module.exports=async(req,res)=>{if(!prepare(req,res,'GET'))return;try{const ctx=server();await verifyAdmin(req,ctx);const e=ctx.db.collection('events').doc(ctx.eventId);const [s,c,r]=await Promise.all(['schools','competitions','results'].map(k=>e.collection(k).get()));const rows=q=>q.docs.map(d=>({...d.data(),id:d.id}));res.status(200).json({ok:true,schools:rows(s),competitions:rows(c),results:rows(r)})}catch(e){fail(res,e)}};
