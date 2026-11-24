@@ -5,7 +5,7 @@ const {FieldValue}=require('firebase-admin/firestore');
 const {isReel}=require('../lib/joker');
 const {awards}=require('../lib/scoring');
 const {tally}=require('../lib/joker');
-const statuses=['draft','scheduled','in-progress','completed','published'];
+const statuses=['draft','scheduled'];
 function validate(b){
  if(!b||typeof b!=='object'||Array.isArray(b))throw denied(400,'Invalid request');
  const text=(k,required=false)=>{if(typeof b[k]!=='string'||b[k].trim().length>120||(required&&!b[k].trim()))throw denied(400,'Invalid '+k);return b[k].trim()};
@@ -30,7 +30,7 @@ module.exports=async(req,res)=>{
  if(editing&&(old.data().revision!==b.revision))throw denied(409,'Competition changed; refresh and try again');
  const published=publicResult.exists||old.data()?.published===true||old.data()?.status==='published';
  if(published&&!publicResult.exists)throw denied(409,'Published result missing; repair before editing');
- if(published)patch.status='published';else if(patch.status==='published')throw denied(400,'Publish through Results Management');
+ if(published)patch.status='published';else if(old.exists&&!statuses.includes(old.data().status))patch.status=old.data().status;
  if(privateResult.exists&&!published&&patch.status!=='completed')throw denied(409,'Keep competition completed while a result draft exists');
  const stamp=FieldValue.serverTimestamp();
  function reviseResult(r){const scoring={...patch.scoring,participationEnabled:r.scoring?.participationEnabled===true,participation:r.scoring?.participation||0};return {...r,name:patch.name,nameKonkani:patch.nameKonkani,competitionCategory:patch.competitionCategory,stageType:patch.stageType,scoring,awards:awards({scoring,schoolIds:r.participants},r),revision:r.revision+1,updatedAt:stamp};}
