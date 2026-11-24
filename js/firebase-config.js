@@ -56,7 +56,7 @@ const TOTAL_SCHOOLS = 20;
 // To be configured in Step 3
 // ======================================
 
-const API_BASE_URL = "";
+const API_BASE_URL = "https://kalamel.vercel.app";
 
 
 // ======================================
