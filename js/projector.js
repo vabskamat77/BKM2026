@@ -9,7 +9,7 @@ function status(message,live=false){$('live-status').textContent=message;$('conn
 function render(){if(failed||!master||!results||!settings)return;try{
  // Wait for matching published snapshots, including corrections with unchanged count.
  const tally=calculate(master,results,'overall');const byId=new Map(master.schools.map(s=>[s.schoolId,s]));
- if(master.publishedCount!==tally.count||tally.rows.some(s=>['points','first','second','third'].some(k=>s[k]!==byId.get(s.schoolId)[k]))){status('Synchronizing published results…');return;}
+ if(master.resultRevisions ? (results.length!==master.publishedCount||results.some(r=>master.resultRevisions[r.competitionId]!==r.revision)) : (master.publishedCount!==tally.count||tally.rows.some(s=>['points','first','second','third'].some(k=>s[k]!==byId.get(s.schoolId)[k])))){status('Synchronizing published results…');return;}
  if(!views.includes(view)){renderResult();status(cached.some(Boolean)?'Cached data; may be outdated':'Published result display',!cached.some(Boolean));return;}
  $('result-slide').hidden=true;$('standings-slide').hidden=false;
  const data=calculate(master,results,view);const title=view==='overall'?'Overall championship standings':view+' championship standings';$('podium-title').textContent=title;

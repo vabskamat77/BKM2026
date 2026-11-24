@@ -1,4 +1,5 @@
 export function calculate(master, results, view) {
+ if(view==='overall'&&master.resultRevisions){const rows=master.schools.map(s=>({...s,active:s.active!==false}));return {rows,count:master.publishedCount,top:master.topThree||[]};}
  const selected=results.filter(r=>r.status==='published'&&(view==='overall'||r.competitionCategory===view||r.stageType===view));
  const rows=master.schools.map(s=>({...s,active:s.active!==false,points:0,first:0,second:0,third:0}));
  const map=new Map(rows.map(s=>[s.schoolId,s]));

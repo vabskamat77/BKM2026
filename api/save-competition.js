@@ -2,6 +2,7 @@ const {server}=require('../lib/server');
 const {prepare,fail}=require('../lib/cors');
 const {verifyAdmin,denied}=require('../lib/verify-admin');
 const {FieldValue}=require('firebase-admin/firestore');
+const {isReel}=require('../lib/joker');
 const statuses=['draft','scheduled','in-progress','completed'];
 function validate(b){
  if(!b||typeof b!=='object'||Array.isArray(b))throw denied(400,'Invalid request');
@@ -20,12 +21,13 @@ module.exports=async(req,res)=>{
  const patch=validate(b),editing=b.id!==null&&b.id!==undefined;if(editing&&(typeof b.id!=='string'||! /^[A-Za-z0-9_-]{1,80}$/.test(b.id)||!Number.isInteger(b.revision)))throw denied(400,'Invalid competition ID or revision');
  const event=db.collection('events').doc(eventId),pub=db.collection('publicEvents').doc(eventId),col=event.collection('competitions'),ref=editing?col.doc(b.id):col.doc();
  await db.runTransaction(async tx=>{
- const [a,m,p,old,privateResult,publicResult]=await Promise.all([tx.get(admin.ref),tx.get(event),tx.get(pub),tx.get(ref),tx.get(event.collection('results').doc(ref.id)),tx.get(pub.collection('results').doc(ref.id))]);
+ const [a,m,p,old,privateResult,publicResult,jokers]=await Promise.all([tx.get(admin.ref),tx.get(event),tx.get(pub),tx.get(ref),tx.get(event.collection('results').doc(ref.id)),tx.get(pub.collection('results').doc(ref.id)),tx.get(event.collection('jokers').where('competitionId','==',ref.id))]);
  if(!a.exists||a.data().active!==true||a.data().role!=='admin')throw denied(403,'Administrator permission required');
  if(!m.exists||!p.exists)throw denied(409,'Initialize event first');
  if(editing&&!old.exists)throw denied(404,'Competition not found');
  if(editing&&(old.data().revision!==b.revision))throw denied(409,'Competition changed; refresh and try again');
  if(old.exists&&(old.data().published===true||old.data().status==='published'||privateResult.exists||publicResult.exists))throw denied(409,'Competition locked because results exist');
+ if(isReel(patch)&&!jokers.empty)throw denied(409,'Remove assigned Jokers before renaming to Reel');
  const revision=editing?b.revision+1:1;
  if(editing)tx.update(ref,{...patch,schoolIds:FieldValue.delete(),revision,updatedAt:FieldValue.serverTimestamp()});else{tx.create(ref,{...patch,revision,published:false,createdAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()});tx.update(event,{competitionCount:FieldValue.increment(1)});}
  tx.create(event.collection('auditLogs').doc(),{action:editing?'update-competition':'create-competition',uid:admin.uid,competitionId:ref.id,before:editing?old.data():null,after:patch,at:FieldValue.serverTimestamp()});
