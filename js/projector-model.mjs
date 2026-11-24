@@ -1,5 +1,6 @@
-export const views=['overall','Gold','Silver','Onstage','Offstage'];
+export const views=['overall'];
+export const validSlide=k=>k==='overall'||(typeof k==='string'&&/^result:[\w-]{1,80}$/.test(k));
 export const label=k=>k==='overall'?'Overall championship':k==='latest'?'Latest competition result':k;
-export function normalize(d={}){return {mode:d.mode==='manual'?'manual':'auto',autoplay:d.autoplay!==false,masterSeconds:d.masterSeconds||20,resultSeconds:d.resultSeconds||10,slides:d.slides||[...views,'latest'],slide:d.slide||'overall',revision:d.revision||0,anchorMs:d.anchorMs||0};}
+export function normalize(d={}){const slides=Array.isArray(d.slides)?[...new Set(d.slides.filter(validSlide))]:[];if(!slides.length)slides.push('overall');const mode=d.mode==='manual'?'manual':'auto';const slide=validSlide(d.slide)&&(mode==='manual'||slides.includes(d.slide))?d.slide:slides[0];return {mode,autoplay:d.autoplay!==false,masterSeconds:d.masterSeconds||20,resultSeconds:d.resultSeconds||10,slides,slide,revision:d.revision||0,anchorMs:d.anchorMs||0};}
 export function current(d,now=Date.now()){if(!d.anchorMs||d.mode==='manual'||!d.autoplay)return d.slide;const list=d.slides;let i=Math.max(0,list.indexOf(d.slide));const duration=k=>(views.includes(k)?d.masterSeconds:d.resultSeconds)*1000;const cycle=list.reduce((n,k)=>n+duration(k),0);let elapsed=Math.max(0,now-d.anchorMs)%cycle;while(elapsed>=duration(list[i])){elapsed-=duration(list[i]);i=(i+1)%list.length;}return list[i];}
 export function latest(results){return results.filter(r=>r.status==='published').sort((a,b)=>(b.updatedAt?.toMillis?.()||0)-(a.updatedAt?.toMillis?.()||0)||String(a.competitionId).localeCompare(String(b.competitionId)))[0];}
